@@ -1,0 +1,14 @@
+#!/bin/sh
+
+. "`dirname $0`/env"
+
+githook `basename $0`
+E=$?
+if [ "$E" -ne 0 ]; then
+  exit $E
+fi
+githooks `basename $0` $@
+E=$?
+if [ "$E" -ne 0 ]; then
+  exit $E
+fi

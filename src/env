@@ -1,0 +1,47 @@
+#!/bin/bash
+
+gitdir() {
+  x=$1
+  git_dir=""
+  while [ "$x" != "/" -a "$git_dir" = "" ] ; do
+    git_dir=`find "$x" -maxdepth 1 -type d -name .git`
+    x=`dirname "$x"`
+  done
+
+  echo $git_dir
+}
+
+githook() {
+  hook=$1
+  if [ "$GIT_DIR" != "" -a -f "$GIT_DIR/hooks/$hook" ]; then
+    $GIT_DIR/hooks/$hook "$@"
+    E=$?
+    if [ "$E" -ne 0 ]; then
+      exit $E
+    fi
+  fi
+}
+
+githooks() {
+  hook=$1
+  hd="$CURRENT_DIR/$hook.d"
+  if [ -d "$hd" ]; then
+    shift
+    
+    files=`find "$hd" -maxdepth 1 -type f -executable`
+    if [ -d "$hd" -a "$files" != "" ]; then
+      for s in `echo $files`; do
+        $s "$@"
+        E=$?
+        if [ "$E" -ne 0 ]; then
+          exit $E
+        fi
+      done
+    fi
+  fi
+}
+
+CURRENT_DIR=`dirname $0`
+GIT_DIR=`gitdir $PWD`
+
+
