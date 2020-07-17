@@ -16,11 +16,11 @@ GITHOOK_FILES := $(addprefix $(DIST)/, $(GITHOOKS))
 GITHOOK_FOLDERS := $(addsuffix .d,$(GITHOOK_FILES))
 
 help:  ## Help
-	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
+	grep -E -H '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
 		sed -n 's/^.*:\(.*\): \(.*\)##\(.*\)/\1%%%\3/p' | \
 		column -t -s '%%%'
 
-all: generate
+all: generate  ## Build everything into DIST
 
 generate: $(DIST) $(DIST)/env $(GITHOOK_FILES) $(GITHOOK_FOLDERS)
 
