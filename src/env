@@ -11,9 +11,25 @@ gitdir() {
   echo $git_dir
 }
 
-githook() {
+# Basic filter that looks for a .githookignore file in the git project
+# uses grep regex to match what we want to ignore. Patterns are newline
+# separated.
+# 
+# Within projects, you can just put the name of the hook you want to ignore
+filterHook() {
   hook=$1
-  if [ "$GIT_DIR" != "" -a -f "$GIT_DIR/hooks/$hook" ]; then
+  rules="$GIT_DIR/../.githookignore"
+  if [ -f "$rules" ]; then
+    echo $hook | grep --file="$rules" -v
+    return
+  fi
+  echo $hook
+}
+
+# Call the hook within the git project if it passes 
+githook() {
+  hook=`filterHook $1`
+  if [ -n "$hook" -a "$GIT_DIR" != "" -a -f "$GIT_DIR/hooks/$hook" ]; then
     $GIT_DIR/hooks/$hook "$@"
     E=$?
     if [ "$E" -ne 0 ]; then
@@ -27,9 +43,8 @@ githooks() {
   hd="$CURRENT_DIR/$hook.d"
   if [ -d "$hd" ]; then
     shift
-    
-    files=`find "$hd" -maxdepth 1 -type f -executable`
-    if [ -d "$hd" -a "$files" != "" ]; then
+    files=`find "$hd" -maxdepth 1 -type f -perm +111`
+    if [ "$files" != "" ]; then
       for s in `echo $files`; do
         $s "$@"
         E=$?

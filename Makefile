@@ -1,5 +1,5 @@
 SHELL := bash
-.SHELLFLAGS := -eu -o pipefail -c  
+.SHELLFLAGS := -eu -o pipefail -c
 .ONESHELL:
 .DEFAULT_GOAL := help
 
@@ -35,3 +35,5 @@ $(GITHOOK_FILES): $(SRC)/hook
 
 $(GITHOOK_FOLDERS):
 	install -d $(@)
+
+
