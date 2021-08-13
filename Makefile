@@ -6,13 +6,14 @@ SHELL := bash
 MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 
+PREFIX ?= $(HOME)/.config/githooks
+
 SRC := src
-DIST := dist
 
 GITHOOKS += applypatch-msg post-update pre-commit prepare-commit-msg pre-push pre-rebase
 GITHOOKS += commit-msg fsmonitor-watchman pre-applypatch pre-receive update
 
-GITHOOK_FILES := $(addprefix $(DIST)/, $(GITHOOKS))
+GITHOOK_FILES := $(addprefix $(PREFIX)/, $(GITHOOKS))
 GITHOOK_FOLDERS := $(addsuffix .d,$(GITHOOK_FILES))
 
 help:  ## Help
@@ -20,14 +21,10 @@ help:  ## Help
 		sed -n 's/^.*:\(.*\): \(.*\)##\(.*\)/\1%%%\3/p' | \
 		column -t -s '%%%'
 
-all: generate  ## Build everything into DIST
+preinstall:
+	install -d $(PREFIX)
 
-generate: $(DIST) $(DIST)/env $(GITHOOK_FILES) $(GITHOOK_FOLDERS)
-
-dist:
-	install -d $(DIST)
-
-$(DIST)/env: $(SRC)/env
+$(PREFIX)/env: $(SRC)/env
 	cp $(^) $(@)
 
 $(GITHOOK_FILES): $(SRC)/hook
@@ -36,4 +33,9 @@ $(GITHOOK_FILES): $(SRC)/hook
 $(GITHOOK_FOLDERS):
 	install -d $(@)
 
+update_git: ## Update git with our githooks path
+	git config --global core.hooksPath "$(PREFIX)"
+.PHONY: update_git
 
+install: preinstall $(PREFIX)/env $(GITHOOK_FILES) $(GITHOOK_FOLDERS) update_git ## install into PREFIX
+	
