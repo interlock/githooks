@@ -43,9 +43,9 @@ githooks() {
   hd="$CURRENT_DIR/$hook.d"
   if [ -d "$hd" ]; then
     shift
-    if [ "Linux" -eq `uname -s`]; then
+    if [ "Linux" = `uname -s`]; then
       files=`find "$hd" -maxdepth 1 -type f -executable`
-    elif [ "MacOS" -eq `uname -s` ]; then
+    elif [ "MacOS" = `uname -s` ]; then
       files=`find "$hd" -maxdepth 1 -type f -perm +111`
     fi
     
